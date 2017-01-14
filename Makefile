@@ -1,15 +1,18 @@
-CXXFLAGS =	-O0 -g -Wall -fmessage-length=0 -std=c++11
+CXXFLAGS =	-O3 -g -Wall -fmessage-length=0 -std=c++11
 
 OBJS =		CouchDocValidator.o
 
 LIBS = -limtjson
 
-TARGET =	CouchDocValidator
+TARGET =	bin/couch_doc_validator
 
-$(TARGET):	$(OBJS)
+$(TARGET):	$(OBJS) | bin
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
 
 all:	$(TARGET)
+
+bin:
+	mkdir bin
 
 clean:
 	rm -f $(OBJS) $(TARGET)

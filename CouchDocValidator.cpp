@@ -10,11 +10,14 @@
 
 using namespace json;
 
-var doResetCommand(const var &cmd) {
-	return true;
-}
 
 std::map<String, var> storedDocs;
+std::vector<var> views;
+
+var doResetCommand(const var &cmd) {
+	views.clear();
+	return true;
+}
 
 
 static void log(var v) {
@@ -101,27 +104,55 @@ var doCommandDDoc(const var &cmd) {
 
 }
 
+
+var doAddFun(const var &cmd) {
+	views.push_back(var::fromString(cmd[1].getString()));
+	return true;
+}
+
+var doMapDoc(const var &cmd) {
+
+	Array r;
+	for (var x : views) {
+		Validator v(x);
+		bool res = v.validate(cmd[1]);
+		if (res) {
+			r.add({{nullptr,nullptr}});
+		} else{
+			r.add(array);
+		}
+	}
+	return r;
+}
+
+
 int main(void) {
 
-
-do {
-
-	var v = Value::fromStream(std::cin);
-	log(v);
-	var res;
 	try {
+	do {
 
-		String cmd = v[0];
-		if (cmd == "reset") res = doResetCommand(v);
-		else if (cmd == "ddoc") res=doCommandDDoc(v);
-		else res = {"error","unsupported","Operation is not supported by this query server"};
 
+		var v = Value::fromStream(std::cin);
+//		log(v);
+		var res;
+		try {
+
+			String cmd = v[0];
+			if (cmd == "reset") res = doResetCommand(v);
+			else if (cmd == "ddoc") res=doCommandDDoc(v);
+			else if (cmd == "add_fun") res=doAddFun(v);
+			else if (cmd == "map_doc") res = doMapDoc(v);
+			else res = {"error","unsupported","Operation is not supported by this query server"};
+
+		} catch (std::exception &e) {
+			res = {"error", e.what() };
+		}
+		res.toStream(std::cout);
+		std::cout << std::endl;
+
+	} while (true);
 	} catch (std::exception &e) {
-		res = {"error", e.what() };
+		std::cout << var({"error", e.what() }).stringify() << std::endl;
 	}
-	res.toStream(std::cout);
-	std::cout << std::endl;
-
-} while (true);
 
 }
