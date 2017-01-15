@@ -1,5 +1,4 @@
-# couchdocvalidator
-A QueryServer for CouchDB which intended to validate or filter documents defined by a schema, which has been introduced with the imtjson library
+# couchdocvalidator (jSchema)
 
 It requires imtjson to compile. The library must be installed in the system.
 
