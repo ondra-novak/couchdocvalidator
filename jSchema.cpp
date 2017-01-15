@@ -40,7 +40,7 @@ String formatErrorMsg(const var &rejs) {
 				out << "." << p.getString();
 			}
 		}
-		out << " : " << r[1].toString();
+		out << " : " << r[1].toString() << ". ";
 		out << std::endl;
 
 	}
@@ -113,11 +113,25 @@ var doAddFun(const var &cmd) {
 var doMapDoc(const var &cmd) {
 
 	Array r;
+	Array o;
 	for (var x : views) {
 		Validator v(x);
 		bool res = v.validate(cmd[1]);
 		if (res) {
-			r.add({{nullptr,nullptr}});
+			var emits = v.getEmits();
+			if (emits.empty()) {
+				r.add({{nullptr,nullptr}});
+			} else {
+				o.clear();
+				for (var z:emits) {
+					if (z.type() == array && z.size() == 2) {
+						o.add(z);
+					} else {
+						o.add({nullptr, z});
+					}
+				}
+				r.add(o);
+			}
 		} else{
 			r.add(array);
 		}
@@ -145,7 +159,7 @@ int main(void) {
 			else res = {"error","unsupported","Operation is not supported by this query server"};
 
 		} catch (std::exception &e) {
-			res = {"error", e.what() };
+			res = {"error", "exception",e.what() };
 		}
 		res.toStream(std::cout);
 		std::cout << std::endl;
